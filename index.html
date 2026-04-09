@@ -12,21 +12,24 @@
       --muted: #6b7280;
       --accent: #2563eb;
       --danger: #dc2626;
-      --ok: #059669;
       --border: #d1d5db;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
     }
+
     .wrap {
       max-width: 1100px;
       margin: 0 auto;
       padding: 24px;
     }
+
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -34,10 +37,12 @@
       padding: 24px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.05);
     }
+
     h1, h2, h3 { margin-top: 0; }
     .hidden { display: none !important; }
     .center { text-align: center; }
     .muted { color: var(--muted); }
+
     .controls {
       display: flex;
       gap: 12px;
@@ -45,6 +50,7 @@
       justify-content: center;
       margin-top: 16px;
     }
+
     button {
       border: none;
       border-radius: 12px;
@@ -55,20 +61,24 @@
       background: var(--accent);
       color: white;
     }
+
     button.secondary {
       background: #e5e7eb;
       color: var(--text);
     }
+
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
+
     .select-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
       margin-top: 20px;
     }
+
     .select-card {
       border: 1px solid var(--border);
       background: #f9fafb;
@@ -76,6 +86,7 @@
       padding: 20px;
       text-align: center;
     }
+
     .task-area {
       min-height: 82vh;
       display: flex;
@@ -84,12 +95,15 @@
       justify-content: center;
       gap: 20px;
     }
+
     .fixation {
       width: 28px;
       height: 28px;
       position: relative;
     }
-    .fixation::before, .fixation::after {
+
+    .fixation::before,
+    .fixation::after {
       content: "";
       position: absolute;
       background: black;
@@ -97,6 +111,7 @@
       top: 50%;
       transform: translate(-50%, -50%);
     }
+
     .fixation::before { width: 24px; height: 4px; }
     .fixation::after { width: 4px; height: 24px; }
 
@@ -111,6 +126,7 @@
       border: 1px solid var(--border);
       overflow: hidden;
     }
+
     .stimulus-box img {
       max-width: 100%;
       max-height: 100%;
@@ -129,6 +145,7 @@
       gap: 12px;
       margin-bottom: 16px;
     }
+
     .status-item {
       background: #f9fafb;
       border: 1px solid var(--border);
@@ -143,21 +160,34 @@
       margin-top: 16px;
       font-size: 14px;
     }
+
     th, td {
       border: 1px solid var(--border);
       padding: 10px;
       text-align: center;
     }
+
     th { background: #f3f4f6; }
 
     .small { font-size: 13px; }
     .footer-note { margin-top: 18px; }
 
     @media (max-width: 760px) {
-      .status-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .select-grid { grid-template-columns: 1fr; }
-      .response-hint { font-size: 18px; }
-      table { font-size: 12px; }
+      .status-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .select-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .response-hint {
+        font-size: 18px;
+      }
+
+      table {
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -166,8 +196,10 @@
     <div id="setupScreen" class="card">
       <h1 class="center">Mental Hand Rotation</h1>
       <p class="center">
-        表示される手が右手か左手か判断し、<strong>左手なら ← キー</strong>、
-        <strong>右手なら → キー</strong>を押してください。
+        表示される手が右手か左手か判断し、
+        <strong>左手なら ← キー</strong>、
+        <strong>右手なら → キー</strong>
+        を押してください。
       </p>
       <p class="center" style="color:#dc2626;">
         できるだけ素早く答えます。指以外、身体は動かさない想定です。
@@ -184,14 +216,15 @@
       <div class="select-grid">
         <div class="select-card">
           <h3>ノーマル手</h3>
-          <p class="small muted">images/normal/ 以下の画像を使用</p>
+          <p class="small muted">normal/ 以下の画像を使用</p>
           <div class="controls">
             <button id="startNormalBtn">ノーマルで開始</button>
           </div>
         </div>
+
         <div class="select-card">
           <h3>モンキー手</h3>
-          <p class="small muted">images/monkey/ 以下の画像を使用</p>
+          <p class="small muted">monkey/ 以下の画像を使用</p>
           <div class="controls">
             <button id="startMonkeyBtn">モンキーで開始</button>
           </div>
@@ -233,6 +266,7 @@
 
     <div id="resultScreen" class="card hidden">
       <h2 class="center">結果</h2>
+
       <div class="status-bar">
         <div class="status-item"><strong>刺激セット</strong><br><span id="resultSetLabel">-</span></div>
         <div class="status-item"><strong>正答率</strong><br><span id="overallAcc">-</span></div>
@@ -240,12 +274,14 @@
         <div class="status-item"><strong>有効試行数</strong><br><span id="validTrials">-</span></div>
       </div>
 
-      <table id="resultTable">
+      <table>
         <thead>
           <tr>
             <th>試行</th>
             <th>stimulusSet</th>
+            <th>phase</th>
             <th>condition</th>
+            <th>correctKey</th>
             <th>responseKey</th>
             <th>correct</th>
             <th>rtMs</th>
@@ -258,6 +294,7 @@
         <button id="downloadCsvBtn">CSV保存</button>
         <button id="restartBtn" class="secondary">最初に戻る</button>
       </div>
+
       <p class="footer-note small muted">
         CSVには stimulusSet 列が入り、normal / monkey のどちらで実施したかを判別できます。
       </p>
@@ -270,8 +307,10 @@
     const TEST_REPEATS = 2;
 
     const CONDITIONS = [
-      "R_P_0", "R_D_0", "R_P_90", "R_D_90", "R_P_180", "R_D_180", "R_P_270", "R_D_270",
-      "L_P_0", "L_D_0", "L_P_90", "L_D_90", "L_P_180", "L_D_180", "L_P_270", "L_D_270"
+      "R_P_0", "R_D_0", "R_P_90", "R_D_90",
+      "R_P_180", "R_D_180", "R_P_270", "R_D_270",
+      "L_P_0", "L_D_0", "L_P_90", "L_D_90",
+      "L_P_180", "L_D_180", "L_P_270", "L_D_270"
     ];
 
     const CORRECT_KEY = Object.fromEntries(
@@ -280,7 +319,7 @@
 
     const state = {
       demoMode: false,
-      stimulusSet: null,   // normal | monkey | demo
+      stimulusSet: null,
       order: [],
       trialIndex: -1,
       awaitingStartKey: false,
@@ -291,8 +330,7 @@
       aborted: false,
       practiceResults: [],
       testResults: [],
-      allResults: [],
-      conditionResults: Object.fromEntries(CONDITIONS.map(c => [c, { acc: [], rt: [] }]))
+      allResults: []
     };
 
     const $ = (id) => document.getElementById(id);
@@ -311,12 +349,14 @@
     }
 
     function buildOrder() {
-      const testTrials = shuffle([...CONDITIONS, ...CONDITIONS]); // 32試行
+      const testTrials = shuffle([...CONDITIONS, ...CONDITIONS]);
       return [...sampleWithReplacement(CONDITIONS, NTRAIN), ...testTrials];
     }
 
     function setScreen(screenId) {
-      ["setupScreen", "taskScreen", "resultScreen"].forEach(id => $(id).classList.add("hidden"));
+      ["setupScreen", "taskScreen", "resultScreen"].forEach(id => {
+        $(id).classList.add("hidden");
+      });
       $(screenId).classList.remove("hidden");
     }
 
@@ -353,6 +393,7 @@
       const side = isRight ? "右" : "左";
       const surface = condition.includes("_P_") ? "掌側" : "手背";
       const angle = condition.split("_")[2] + "°";
+
       const svg = `
         <svg xmlns="http://www.w3.org/2000/svg" width="700" height="700">
           <rect width="100%" height="100%" fill="white"/>
@@ -360,13 +401,14 @@
           <text x="350" y="300" font-size="72" text-anchor="middle" fill="#111827" font-family="sans-serif">${side}手</text>
           <text x="350" y="390" font-size="58" text-anchor="middle" fill="#374151" font-family="sans-serif">${surface}</text>
           <text x="350" y="470" font-size="58" text-anchor="middle" fill="#374151" font-family="sans-serif">${angle}</text>
-        </svg>`;
+        </svg>
+      `;
       return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
     }
 
     function conditionToImagePath(condition) {
       if (state.demoMode) return createDemoStimulus(condition);
-      return `images/${state.stimulusSet}/${condition}.jpg`;
+      return `${state.stimulusSet}/${condition}.jpg`;
     }
 
     function resetState() {
@@ -381,13 +423,13 @@
       state.practiceResults = [];
       state.testResults = [];
       state.allResults = [];
-      state.conditionResults = Object.fromEntries(CONDITIONS.map(c => [c, { acc: [], rt: [] }]));
     }
 
     function startTask(stimulusSet, demoMode = false) {
       state.demoMode = demoMode;
       state.stimulusSet = stimulusSet;
       resetState();
+
       setScreen("taskScreen");
       updateStatus({
         set: state.stimulusSet,
@@ -395,6 +437,7 @@
         trial: `0 / ${NTRAIN + CONDITIONS.length * TEST_REPEATS}`,
         state: "開始待ち"
       });
+
       showMessage(
         "キーを押してスタート",
         `刺激セット: ${state.stimulusSet} / 練習 ${NTRAIN} 回のあとに本試行 ${CONDITIONS.length * TEST_REPEATS} 回です。`
@@ -461,19 +504,25 @@
       return mean(arr) * 100;
     }
 
+    function roundOrDash(value, digits = 0) {
+      if (value === null || Number.isNaN(value)) return "-";
+      return Number(value.toFixed(digits)).toString();
+    }
+
     function handleResponse(key) {
       if (!state.awaitingResponse || !state.currentCondition) return;
       if (!["ArrowLeft", "ArrowRight"].includes(key)) return;
 
       const rt = performance.now() - state.stimulusOnset;
       const correct = Number(key === CORRECT_KEY[state.currentCondition]);
+
       const record = {
         stimulusSet: state.stimulusSet,
         phase: isPracticeTrial(state.trialIndex) ? "practice" : "test",
         trialNumber: state.trialIndex + 1,
         condition: state.currentCondition,
-        responseKey: key,
         correctKey: CORRECT_KEY[state.currentCondition],
+        responseKey: key,
         correct,
         rtMs: Math.round(rt)
       };
@@ -485,8 +534,6 @@
         state.practiceResults.push(record);
       } else {
         state.testResults.push(record);
-        state.conditionResults[state.currentCondition].acc.push(correct);
-        state.conditionResults[state.currentCondition].rt.push(rt);
       }
 
       updateStatus({ state: correct ? "正解" : "不正解" });
@@ -495,11 +542,6 @@
         `反応時間: ${Math.round(rt)} ms　/　キーを押すと次の試行へ`
       );
       state.awaitingStartKey = true;
-    }
-
-    function roundOrDash(value, digits = 0) {
-      if (value === null || Number.isNaN(value)) return "-";
-      return Number(value.toFixed(digits)).toString();
     }
 
     function finishTask() {
@@ -511,17 +553,21 @@
 
       const testAcc = state.testResults.map(r => r.correct);
       const testRt = state.testResults.map(r => r.rtMs);
+
       $("overallAcc").textContent = `${roundOrDash(percent(testAcc), 1)} %`;
       $("overallRt").textContent = `${roundOrDash(mean(testRt), 0)} ms`;
 
       const tbody = $("resultTbody");
       tbody.innerHTML = "";
+
       state.allResults.forEach(r => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${r.trialNumber}</td>
           <td>${r.stimulusSet}</td>
+          <td>${r.phase}</td>
           <td>${r.condition}</td>
+          <td>${r.correctKey}</td>
           <td>${r.responseKey}</td>
           <td>${r.correct}</td>
           <td>${r.rtMs}</td>
@@ -591,6 +637,7 @@
     $("demoBtn").addEventListener("click", () => startTask("demo", true));
     $("restartBtn").addEventListener("click", () => setScreen("setupScreen"));
     $("downloadCsvBtn").addEventListener("click", exportCsv);
+
     $("fullscreenBtn").addEventListener("click", async () => {
       try {
         await document.documentElement.requestFullscreen();
