@@ -3,54 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mental Hand Rotation</title>
+  <title>Reaction Tasks</title>
   <style>
     :root {
-      --bg: #f6f7fb;
+      --bg: #f5f7fb;
       --panel: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
       --accent: #2563eb;
-      --danger: #dc2626;
       --border: #d1d5db;
+      --danger: #dc2626;
+      --ok: #059669;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
     }
-
     .wrap {
       max-width: 1100px;
       margin: 0 auto;
       padding: 24px;
     }
-
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 24px;
+      border-radius: 20px;
+      padding: 28px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.05);
     }
-
-    h1, h2, h3 { margin-top: 0; }
     .hidden { display: none !important; }
     .center { text-align: center; }
     .muted { color: var(--muted); }
-
+    .danger { color: var(--danger); }
+    .ok { color: var(--ok); }
+    h1, h2, h3 { margin-top: 0; }
+    .task-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .choice-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      background: #fbfcff;
+    }
+    .choice-card p {
+      min-height: 78px;
+      line-height: 1.7;
+    }
     .controls {
       display: flex;
       gap: 12px;
-      flex-wrap: wrap;
       justify-content: center;
+      flex-wrap: wrap;
       margin-top: 16px;
     }
-
     button {
       border: none;
       border-radius: 12px;
@@ -61,91 +73,20 @@
       background: var(--accent);
       color: white;
     }
-
     button.secondary {
       background: #e5e7eb;
       color: var(--text);
     }
-
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-
-    .select-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      margin-top: 20px;
-    }
-
-    .select-card {
-      border: 1px solid var(--border);
-      background: #f9fafb;
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .task-area {
-      min-height: 82vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .fixation {
-      width: 28px;
-      height: 28px;
-      position: relative;
-    }
-
-    .fixation::before,
-    .fixation::after {
-      content: "";
-      position: absolute;
-      background: black;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    .fixation::before { width: 24px; height: 4px; }
-    .fixation::after { width: 4px; height: 24px; }
-
-    .stimulus-box {
-      width: min(92vw, 520px);
-      height: min(78vw, 500px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      background: #fff;
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-
-    .stimulus-box img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-
-    .response-hint {
-      font-size: 24px;
-      font-weight: 700;
-      text-align: center;
-    }
-
     .status-bar {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-
     .status-item {
       background: #f9fafb;
       border: 1px solid var(--border);
@@ -153,102 +94,134 @@
       padding: 12px;
       text-align: center;
     }
-
+    .task-area {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+    }
+    .fixation {
+      width: 28px;
+      height: 28px;
+      position: relative;
+    }
+    .fixation::before, .fixation::after {
+      content: "";
+      position: absolute;
+      background: black;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .fixation::before { width: 24px; height: 4px; }
+    .fixation::after { width: 4px; height: 24px; }
+    .stimulus-box {
+      width: min(70vw, 520px);
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: white;
+      padding: 20px;
+    }
+    .stimulus-text {
+      font-size: clamp(40px, 8vw, 88px);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .hint {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 16px;
       font-size: 14px;
     }
-
     th, td {
       border: 1px solid var(--border);
       padding: 10px;
       text-align: center;
     }
+    th { background: #4b74c0; color: white; }
 
-    th { background: #f3f4f6; }
+    .summary-table th {
+      background: #4b74c0;
+      color: white;
+      font-weight: 700;
+    }
 
+    .summary-table td {
+      background: #c7cde0;
+    }
+
+    .summary-table td:first-child,
+    .summary-table th:first-child {
+      text-align: left;
+      padding-left: 16px;
+      min-width: 120px;
+    }
     .small { font-size: 13px; }
-    .footer-note { margin-top: 18px; }
-
-    @media (max-width: 760px) {
-      .status-bar {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .select-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .response-hint {
-        font-size: 18px;
-      }
-
-      table {
-        font-size: 12px;
-      }
+    .note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    @media (max-width: 800px) {
+      .task-grid { grid-template-columns: 1fr; }
+      .status-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hint { font-size: 18px; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div id="setupScreen" class="card">
-      <h1 class="center">Mental Hand Rotation</h1>
-      <p class="center">
-        表示される手が右手か左手か判断し、
-        <strong>左手なら ← キー</strong>、
-        <strong>右手なら → キー</strong>
-        を押してください。
-      </p>
-      <p class="center" style="color:#dc2626;">
-        できるだけ素早く答えます。指以外、身体は動かさない想定です。
-      </p>
+    <div id="menuScreen" class="card">
+      <h1 class="center">反応課題アプリ</h1>
+      <p class="center muted">最初の画面で課題を選択し、ブラウザ上で実施できます。終了後は成績をCSVで保存できます。</p>
 
-      <div class="status-bar">
-        <div class="status-item"><strong>練習</strong><br><span id="trainCountLabel">3 試行</span></div>
-        <div class="status-item"><strong>本試行</strong><br><span id="testCountLabel">32 試行</span></div>
-        <div class="status-item"><strong>注視点</strong><br>1.5 秒</div>
-        <div class="status-item"><strong>操作</strong><br>Escape で中断</div>
-      </div>
-
-      <h2 class="center">刺激セットを選択</h2>
-      <div class="select-grid">
-        <div class="select-card">
-          <h3>ノーマル手</h3>
-          <p class="small muted">normal/ 以下の画像を使用</p>
+      <div class="task-grid">
+        <div class="choice-card">
+          <h2>単純反応課題</h2>
+          <p>「PUSH」が出たら、<strong>←</strong> か <strong>→</strong> のどちらかをできるだけ速く押します。MATLAB版では 5 試行で、正答率は採点せず反応時間のみを主に扱っていました。</p>
           <div class="controls">
-            <button id="startNormalBtn">ノーマルで開始</button>
+            <button id="simpleSelectBtn">単純反応課題を開始</button>
           </div>
         </div>
 
-        <div class="select-card">
-          <h3>モンキー手</h3>
-          <p class="small muted">monkey/ 以下の画像を使用</p>
+        <div class="choice-card">
+          <h2>選択反応課題</h2>
+          <p>「ひだり」が出たら <strong>←</strong>、「みぎ」が出たら <strong>→</strong> を押します。MATLAB版と同様に 10 試行で、平均反応時間と正答率を表示します。</p>
           <div class="controls">
-            <button id="startMonkeyBtn">モンキーで開始</button>
+            <button id="choiceSelectBtn">選択反応課題を開始</button>
           </div>
         </div>
       </div>
 
       <div class="controls">
         <button id="fullscreenBtn" class="secondary">全画面</button>
-        <button id="demoBtn" class="secondary">ダミー画像で確認</button>
       </div>
     </div>
 
     <div id="taskScreen" class="card hidden">
       <div class="status-bar">
-        <div class="status-item"><strong>刺激セット</strong><br><span id="setLabel">-</span></div>
-        <div class="status-item"><strong>段階</strong><br><span id="phaseLabel">練習</span></div>
-        <div class="status-item"><strong>試行</strong><br><span id="trialLabel">1 / 35</span></div>
+        <div class="status-item"><strong>課題</strong><br><span id="taskLabel">-</span></div>
+        <div class="status-item"><strong>試行</strong><br><span id="trialLabel">0 / 0</span></div>
         <div class="status-item"><strong>状態</strong><br><span id="stateLabel">待機中</span></div>
+        <div class="status-item"><strong>中断</strong><br>Escape</div>
       </div>
 
       <div class="task-area">
         <div id="messageArea" class="center">
-          <h2 id="mainMessage">キーを押してスタート</h2>
-          <p id="subMessage" class="muted">練習のあとに本試行を行います。</p>
+          <h2 id="mainMessage">課題を開始します</h2>
+          <p id="subMessage" class="muted"></p>
         </div>
 
         <div id="fixationArea" class="hidden">
@@ -257,291 +230,322 @@
 
         <div id="stimulusArea" class="hidden center">
           <div class="stimulus-box">
-            <img id="stimulusImage" alt="hand stimulus" />
+            <div id="stimulusText" class="stimulus-text"></div>
           </div>
-          <div class="response-hint">← 左手　　　どっち？　　　右手 →</div>
+          <div id="hintText" class="hint"></div>
         </div>
       </div>
     </div>
 
     <div id="resultScreen" class="card hidden">
       <h2 class="center">結果</h2>
-
       <div class="status-bar">
-        <div class="status-item"><strong>刺激セット</strong><br><span id="resultSetLabel">-</span></div>
-        <div class="status-item"><strong>正答率</strong><br><span id="overallAcc">-</span></div>
+        <div class="status-item"><strong>課題</strong><br><span id="resultTaskLabel">-</span></div>
         <div class="status-item"><strong>平均反応時間</strong><br><span id="overallRt">-</span></div>
+        <div class="status-item"><strong>正答率</strong><br><span id="overallAcc">-</span></div>
         <div class="status-item"><strong>有効試行数</strong><br><span id="validTrials">-</span></div>
       </div>
 
-      <table>
+      <h3 class="center">書き写し用まとめ</h3>
+      <table class="summary-table">
         <thead>
           <tr>
-            <th>試行</th>
-            <th>stimulusSet</th>
-            <th>phase</th>
-            <th>condition</th>
-            <th>correctKey</th>
-            <th>responseKey</th>
-            <th>correct</th>
-            <th>rtMs</th>
+            <th id="summarySetName">Normal</th>
+            <th>右0°</th>
+            <th>右90°</th>
+            <th>右180°</th>
+            <th>右270°</th>
+            <th>左0°</th>
+            <th>左90°</th>
+            <th>左180°</th>
+            <th>左270°</th>
+            <th>右平均</th>
+            <th>左平均</th>
           </tr>
         </thead>
-        <tbody id="resultTbody"></tbody>
+        <tbody>
+          <tr>
+            <td>正答率 [%]</td>
+            <td id="acc-r-0">-</td>
+            <td id="acc-r-90">-</td>
+            <td id="acc-r-180">-</td>
+            <td id="acc-r-270">-</td>
+            <td id="acc-l-0">-</td>
+            <td id="acc-l-90">-</td>
+            <td id="acc-l-180">-</td>
+            <td id="acc-l-270">-</td>
+            <td id="acc-r-mean">-</td>
+            <td id="acc-l-mean">-</td>
+          </tr>
+        </tbody>
       </table>
+
+      <table class="summary-table" style="margin-top:10px;">
+        <thead>
+          <tr>
+            <th></th>
+            <th>右0°</th>
+            <th>右90°</th>
+            <th>右180°</th>
+            <th>右270°</th>
+            <th>左0°</th>
+            <th>左90°</th>
+            <th>左180°</th>
+            <th>左270°</th>
+            <th>右平均</th>
+            <th>左平均</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>反応時間 [msec]</td>
+            <td id="rt-r-0">-</td>
+            <td id="rt-r-90">-</td>
+            <td id="rt-r-180">-</td>
+            <td id="rt-r-270">-</td>
+            <td id="rt-l-0">-</td>
+            <td id="rt-l-90">-</td>
+            <td id="rt-l-180">-</td>
+            <td id="rt-l-270">-</td>
+            <td id="rt-r-mean">-</td>
+            <td id="rt-l-mean">-</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="center small muted">上の2つの表を、そのまま記録用紙に書き写してください。</p>
+
+      <details style="margin-top:16px;">
+        <summary>試行ごとの詳細を表示</summary>
+        <table>
+          <thead>
+            <tr>
+              <th>試行</th>
+              <th>stimulusSet</th>
+              <th>phase</th>
+              <th>condition</th>
+              <th>correctKey</th>
+              <th>responseKey</th>
+              <th>correct</th>
+              <th>rtMs</th>
+            </tr>
+          </thead>
+          <tbody id="resultTbody"></tbody>
+        </table>
+      </details>
 
       <div class="controls">
         <button id="downloadCsvBtn">CSV保存</button>
-        <button id="restartBtn" class="secondary">最初に戻る</button>
+        <button id="backToMenuBtn" class="secondary">メニューに戻る</button>
       </div>
 
-      <p class="footer-note small muted">
-        CSVには stimulusSet 列が入り、normal / monkey のどちらで実施したかを判別できます。
-      </p>
+      <p class="note">ブラウザ版では MATLAB/Psychtoolbox と完全に同一の時間精度にはなりません。授業用途やデモには十分ですが、研究用の厳密計測では実行環境の固定が必要です。</p>
     </div>
   </div>
 
   <script>
-    const FIX_MS = 1500;
-    const NTRAIN = 3;
-    const TEST_REPEATS = 2;
+    const ITI_MS = 2000;
+    const FIX_MS = 4000;
 
-    const CONDITIONS = [
-      "R_P_0", "R_D_0", "R_P_90", "R_D_90",
-      "R_P_180", "R_D_180", "R_P_270", "R_D_270",
-      "L_P_0", "L_D_0", "L_P_90", "L_D_90",
-      "L_P_180", "L_D_180", "L_P_270", "L_D_270"
-    ];
-
-    const CORRECT_KEY = Object.fromEntries(
-      CONDITIONS.map(name => [name, name.startsWith("R_") ? "ArrowRight" : "ArrowLeft"])
-    );
+    const TASKS = {
+      simple: {
+        key: 'simple',
+        name: '単純反応課題',
+        nTrials: 5,
+        instructionTitle: '単純反応課題',
+        instructionText: '「PUSH」が出たら「←」か「→」を押してください。',
+        hint: 'PUSH が出たら ← または →',
+        buildTrials() {
+          return Array.from({ length: this.nTrials }, (_, i) => ({
+            stimulus: 'PUSH',
+            condition: i % 2 === 0 ? 1 : 2,
+            correctKey: null
+          })).sort(() => Math.random() - 0.5);
+        },
+        score(responseKey, trial) {
+          const valid = responseKey === 'ArrowLeft' || responseKey === 'ArrowRight';
+          return { correct: valid ? 1 : 0, scored: false };
+        },
+        accuracyText() {
+          return '採点なし';
+        }
+      },
+      choice: {
+        key: 'choice',
+        name: '選択反応課題',
+        nTrials: 10,
+        instructionTitle: '選択反応課題',
+        instructionText: '「ひだり」が出たら「←」、「みぎ」が出たら「→」を押してください。',
+        hint: 'ひだり → ←　　　みぎ → →',
+        buildTrials() {
+          const oriCond = [1,2,1,2,1,2,1,2,1,2];
+          const shuffled = [...oriCond].sort(() => Math.random() - 0.5);
+          return shuffled.map(cond => ({
+            stimulus: cond === 1 ? 'みぎ' : 'ひだり',
+            condition: cond,
+            correctKey: cond === 1 ? 'ArrowRight' : 'ArrowLeft'
+          }));
+        },
+        score(responseKey, trial) {
+          const correct = Number(responseKey === trial.correctKey);
+          return { correct, scored: true };
+        },
+        accuracyText(results) {
+          const scored = results.filter(r => r.scored);
+          if (!scored.length) return '-';
+          const acc = scored.reduce((sum, r) => sum + r.correct, 0) / scored.length * 100;
+          return `${Math.round(acc)} %`;
+        }
+      }
+    };
 
     const state = {
-      demoMode: false,
-      stimulusSet: null,
-      order: [],
+      task: null,
+      trials: [],
       trialIndex: -1,
-      awaitingStartKey: false,
+      awaitingStart: false,
       awaitingResponse: false,
       stimulusOnset: null,
-      currentCondition: null,
+      currentTrial: null,
+      results: [],
       finished: false,
-      aborted: false,
-      practiceResults: [],
-      testResults: [],
-      allResults: []
+      aborted: false
     };
 
     const $ = (id) => document.getElementById(id);
 
-    function shuffle(array) {
-      const a = [...array];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
+    function setScreen(id) {
+      ['menuScreen', 'taskScreen', 'resultScreen'].forEach(screenId => $(screenId).classList.add('hidden'));
+      $(id).classList.remove('hidden');
     }
 
-    function sampleWithReplacement(array, n) {
-      return Array.from({ length: n }, () => array[Math.floor(Math.random() * array.length)]);
+    function updateStatus({ task, trial, status } = {}) {
+      if (task !== undefined) $('taskLabel').textContent = task;
+      if (trial !== undefined) $('trialLabel').textContent = trial;
+      if (status !== undefined) $('stateLabel').textContent = status;
     }
 
-    function buildOrder() {
-      const testTrials = shuffle([...CONDITIONS, ...CONDITIONS]);
-      return [...sampleWithReplacement(CONDITIONS, NTRAIN), ...testTrials];
-    }
-
-    function setScreen(screenId) {
-      ["setupScreen", "taskScreen", "resultScreen"].forEach(id => {
-        $(id).classList.add("hidden");
-      });
-      $(screenId).classList.remove("hidden");
-    }
-
-    function updateStatus(partial = {}) {
-      if (partial.set !== undefined) $("setLabel").textContent = partial.set;
-      if (partial.phase !== undefined) $("phaseLabel").textContent = partial.phase;
-      if (partial.trial !== undefined) $("trialLabel").textContent = partial.trial;
-      if (partial.state !== undefined) $("stateLabel").textContent = partial.state;
-    }
-
-    function showMessage(title, subtitle = "") {
-      $("messageArea").classList.remove("hidden");
-      $("fixationArea").classList.add("hidden");
-      $("stimulusArea").classList.add("hidden");
-      $("mainMessage").textContent = title;
-      $("subMessage").textContent = subtitle;
+    function showMessage(title, subtitle = '') {
+      $('messageArea').classList.remove('hidden');
+      $('fixationArea').classList.add('hidden');
+      $('stimulusArea').classList.add('hidden');
+      $('mainMessage').textContent = title;
+      $('subMessage').textContent = subtitle;
     }
 
     function showFixation() {
-      $("messageArea").classList.add("hidden");
-      $("fixationArea").classList.remove("hidden");
-      $("stimulusArea").classList.add("hidden");
+      $('messageArea').classList.add('hidden');
+      $('fixationArea').classList.remove('hidden');
+      $('stimulusArea').classList.add('hidden');
     }
 
-    function showStimulus(src) {
-      $("messageArea").classList.add("hidden");
-      $("fixationArea").classList.add("hidden");
-      $("stimulusArea").classList.remove("hidden");
-      $("stimulusImage").src = src;
+    function showStimulus(text, hint) {
+      $('messageArea').classList.add('hidden');
+      $('fixationArea').classList.add('hidden');
+      $('stimulusArea').classList.remove('hidden');
+      $('stimulusText').textContent = text;
+      $('hintText').textContent = hint;
     }
 
-    function createDemoStimulus(condition) {
-      const isRight = condition.startsWith("R_");
-      const side = isRight ? "右" : "左";
-      const surface = condition.includes("_P_") ? "掌側" : "手背";
-      const angle = condition.split("_")[2] + "°";
-
-      const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="700" height="700">
-          <rect width="100%" height="100%" fill="white"/>
-          <circle cx="350" cy="350" r="220" fill="#f3f4f6" stroke="#9ca3af" stroke-width="4"/>
-          <text x="350" y="300" font-size="72" text-anchor="middle" fill="#111827" font-family="sans-serif">${side}手</text>
-          <text x="350" y="390" font-size="58" text-anchor="middle" fill="#374151" font-family="sans-serif">${surface}</text>
-          <text x="350" y="470" font-size="58" text-anchor="middle" fill="#374151" font-family="sans-serif">${angle}</text>
-        </svg>
-      `;
-      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    function conditionToImagePath(condition) {
-      if (state.demoMode) return createDemoStimulus(condition);
-      return `${state.stimulusSet}/${condition}.jpg`;
-    }
-
-    function resetState() {
-      state.order = buildOrder();
+    function startTask(taskKey) {
+      const task = TASKS[taskKey];
+      state.task = task;
+      state.trials = task.buildTrials();
       state.trialIndex = -1;
-      state.awaitingStartKey = true;
+      state.awaitingStart = true;
       state.awaitingResponse = false;
       state.stimulusOnset = null;
-      state.currentCondition = null;
+      state.currentTrial = null;
+      state.results = [];
       state.finished = false;
       state.aborted = false;
-      state.practiceResults = [];
-      state.testResults = [];
-      state.allResults = [];
-    }
 
-    function startTask(stimulusSet, demoMode = false) {
-      state.demoMode = demoMode;
-      state.stimulusSet = stimulusSet;
-      resetState();
-
-      setScreen("taskScreen");
-      updateStatus({
-        set: state.stimulusSet,
-        phase: "練習",
-        trial: `0 / ${NTRAIN + CONDITIONS.length * TEST_REPEATS}`,
-        state: "開始待ち"
-      });
-
-      showMessage(
-        "キーを押してスタート",
-        `刺激セット: ${state.stimulusSet} / 練習 ${NTRAIN} 回のあとに本試行 ${CONDITIONS.length * TEST_REPEATS} 回です。`
-      );
-    }
-
-    function isPracticeTrial(index) {
-      return index < NTRAIN;
-    }
-
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+      setScreen('taskScreen');
+      updateStatus({ task: task.name, trial: `0 / ${task.nTrials}`, status: '開始待ち' });
+      showMessage(task.instructionTitle, `${task.instructionText} キーを押すと開始します。`);
     }
 
     async function runNextTrial() {
       state.trialIndex += 1;
-
-      if (state.trialIndex >= state.order.length) {
+      if (state.trialIndex >= state.trials.length) {
         finishTask();
         return;
       }
 
-      if (state.trialIndex === NTRAIN) {
-        state.awaitingStartKey = true;
-        updateStatus({
-          set: state.stimulusSet,
-          phase: "本試行",
-          trial: `${state.trialIndex} / ${NTRAIN + CONDITIONS.length * TEST_REPEATS}`,
-          state: "本番開始待ち"
-        });
-        showMessage("練習おわり　本番開始", "キーを押すと本試行が始まります。");
-        return;
-      }
-
-      const phase = isPracticeTrial(state.trialIndex) ? "練習" : "本試行";
-      state.currentCondition = state.order[state.trialIndex];
-
-      updateStatus({
-        set: state.stimulusSet,
-        phase,
-        trial: `${state.trialIndex + 1} / ${NTRAIN + CONDITIONS.length * TEST_REPEATS}`,
-        state: "注視点"
-      });
-
-      showFixation();
-      await delay(FIX_MS);
-
+      state.currentTrial = state.trials[state.trialIndex];
+      updateStatus({ task: state.task.name, trial: `${state.trialIndex + 1} / ${state.task.nTrials}`, status: '待機' });
+      showMessage('次の刺激を待っています', 'そのまま待機してください。');
+      await wait(ITI_MS);
       if (state.finished || state.aborted) return;
 
-      const imgSrc = conditionToImagePath(state.currentCondition);
-      showStimulus(imgSrc);
+      updateStatus({ status: '注視点' });
+      showFixation();
+      await wait(FIX_MS);
+      if (state.finished || state.aborted) return;
+
+      updateStatus({ status: '回答待ち' });
+      showStimulus(state.currentTrial.stimulus, state.task.hint);
       state.stimulusOnset = performance.now();
       state.awaitingResponse = true;
-      updateStatus({ state: "回答待ち" });
-    }
-
-    function mean(arr) {
-      if (!arr.length) return null;
-      return arr.reduce((a, b) => a + b, 0) / arr.length;
-    }
-
-    function percent(arr) {
-      if (!arr.length) return null;
-      return mean(arr) * 100;
-    }
-
-    function roundOrDash(value, digits = 0) {
-      if (value === null || Number.isNaN(value)) return "-";
-      return Number(value.toFixed(digits)).toString();
     }
 
     function handleResponse(key) {
-      if (!state.awaitingResponse || !state.currentCondition) return;
-      if (!["ArrowLeft", "ArrowRight"].includes(key)) return;
+      if (!state.awaitingResponse) return;
+      if (!['ArrowLeft', 'ArrowRight'].includes(key)) return;
 
-      const rt = performance.now() - state.stimulusOnset;
-      const correct = Number(key === CORRECT_KEY[state.currentCondition]);
-
-      const record = {
-        stimulusSet: state.stimulusSet,
-        phase: isPracticeTrial(state.trialIndex) ? "practice" : "test",
+      const rtMs = Math.round(performance.now() - state.stimulusOnset);
+      const score = state.task.score(key, state.currentTrial);
+      state.results.push({
         trialNumber: state.trialIndex + 1,
-        condition: state.currentCondition,
-        correctKey: CORRECT_KEY[state.currentCondition],
+        taskKey: state.task.key,
+        taskName: state.task.name,
+        stimulus: state.currentTrial.stimulus,
+        condition: state.currentTrial.condition,
+        correctKey: state.currentTrial.correctKey ?? '',
         responseKey: key,
-        correct,
-        rtMs: Math.round(rt)
+        correct: score.correct,
+        scored: score.scored,
+        rtMs
+      });
+      state.awaitingResponse = false;
+
+      const feedback = state.task.key === 'choice'
+        ? (score.correct ? '正解' : '不正解')
+        : '反応を記録しました';
+
+      updateStatus({ status: feedback });
+      showMessage(feedback, `反応時間: ${rtMs} ms　/　キーを押すと次の試行に進みます。`);
+      state.awaitingStart = true;
+    }
+
+    function fillCell(id, value) {
+      $(id).textContent = value == null || Number.isNaN(value) ? "-" : String(value);
+    }
+
+    function aggregateCollapsedMetrics() {
+      const collapsed = {
+        "r-0": ["R_P_0", "R_D_0"],
+        "r-90": ["R_P_90", "R_D_90"],
+        "r-180": ["R_P_180", "R_D_180"],
+        "r-270": ["R_P_270", "R_D_270"],
+        "l-0": ["L_P_0", "L_D_0"],
+        "l-90": ["L_P_90", "L_D_90"],
+        "l-180": ["L_P_180", "L_D_180"],
+        "l-270": ["L_P_270", "L_D_270"]
       };
 
-      state.awaitingResponse = false;
-      state.allResults.push(record);
-
-      if (record.phase === "practice") {
-        state.practiceResults.push(record);
-      } else {
-        state.testResults.push(record);
+      const out = {};
+      for (const [label, conds] of Object.entries(collapsed)) {
+        const rows = state.testResults.filter(r => conds.includes(r.condition));
+        const acc = rows.length ? Math.round((rows.reduce((s, r) => s + r.correct, 0) / rows.length) * 100) : null;
+        const rt = rows.length ? Math.round(rows.reduce((s, r) => s + r.rtMs, 0) / rows.length) : null;
+        out[label] = { acc, rt };
       }
-
-      updateStatus({ state: correct ? "正解" : "不正解" });
-      showMessage(
-        correct ? "正解" : "不正解",
-        `反応時間: ${Math.round(rt)} ms　/　キーを押すと次の試行へ`
-      );
-      state.awaitingStartKey = true;
+      return out;
     }
 
     function finishTask() {
@@ -549,6 +553,13 @@
       setScreen("resultScreen");
 
       $("resultSetLabel").textContent = state.stimulusSet;
+      $("summarySetName").textContent =
+        state.stimulusSet === "normal"
+          ? "Normal"
+          : state.stimulusSet === "monkey"
+          ? "Monkey"
+          : state.stimulusSet;
+
       $("validTrials").textContent = `${state.testResults.length} / ${CONDITIONS.length * TEST_REPEATS}`;
 
       const testAcc = state.testResults.map(r => r.correct);
@@ -556,6 +567,34 @@
 
       $("overallAcc").textContent = `${roundOrDash(percent(testAcc), 1)} %`;
       $("overallRt").textContent = `${roundOrDash(mean(testRt), 0)} ms`;
+
+      const summary = aggregateCollapsedMetrics();
+      const rightAccs = [summary["r-0"].acc, summary["r-90"].acc, summary["r-180"].acc, summary["r-270"].acc].filter(v => v != null);
+      const leftAccs = [summary["l-0"].acc, summary["l-90"].acc, summary["l-180"].acc, summary["l-270"].acc].filter(v => v != null);
+      const rightRts = [summary["r-0"].rt, summary["r-90"].rt, summary["r-180"].rt, summary["r-270"].rt].filter(v => v != null);
+      const leftRts = [summary["l-0"].rt, summary["l-90"].rt, summary["l-180"].rt, summary["l-270"].rt].filter(v => v != null);
+
+      fillCell("acc-r-0", summary["r-0"].acc);
+      fillCell("acc-r-90", summary["r-90"].acc);
+      fillCell("acc-r-180", summary["r-180"].acc);
+      fillCell("acc-r-270", summary["r-270"].acc);
+      fillCell("acc-l-0", summary["l-0"].acc);
+      fillCell("acc-l-90", summary["l-90"].acc);
+      fillCell("acc-l-180", summary["l-180"].acc);
+      fillCell("acc-l-270", summary["l-270"].acc);
+      fillCell("acc-r-mean", rightAccs.length ? Math.round(mean(rightAccs)) : null);
+      fillCell("acc-l-mean", leftAccs.length ? Math.round(mean(leftAccs)) : null);
+
+      fillCell("rt-r-0", summary["r-0"].rt);
+      fillCell("rt-r-90", summary["r-90"].rt);
+      fillCell("rt-r-180", summary["r-180"].rt);
+      fillCell("rt-r-270", summary["r-270"].rt);
+      fillCell("rt-l-0", summary["l-0"].rt);
+      fillCell("rt-l-90", summary["l-90"].rt);
+      fillCell("rt-l-180", summary["l-180"].rt);
+      fillCell("rt-l-270", summary["l-270"].rt);
+      fillCell("rt-r-mean", rightRts.length ? Math.round(mean(rightRts)) : null);
+      fillCell("rt-l-mean", leftRts.length ? Math.round(mean(leftRts)) : null);
 
       const tbody = $("resultTbody");
       tbody.innerHTML = "";
@@ -577,47 +616,33 @@
     }
 
     function exportCsv() {
-      const rows = [[
-        "stimulusSet",
-        "phase",
-        "trialNumber",
-        "condition",
-        "correctKey",
-        "responseKey",
-        "correct",
-        "rtMs"
-      ]];
-
-      state.allResults.forEach(r => {
-        rows.push([
-          r.stimulusSet,
-          r.phase,
-          r.trialNumber,
-          r.condition,
-          r.correctKey,
-          r.responseKey,
-          r.correct,
-          r.rtMs
-        ]);
-      });
-
-      const csv = rows.map(row => row.join(",")).join("\n");
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const header = ['taskKey','taskName','trialNumber','stimulus','condition','correctKey','responseKey','correct','scored','rtMs'];
+      const rows = state.results.map(r => [
+        r.taskKey,
+        r.taskName,
+        r.trialNumber,
+        r.stimulus,
+        r.condition,
+        r.correctKey,
+        r.responseKey,
+        r.correct,
+        r.scored,
+        r.rtMs
+      ]);
+      const csv = [header, ...rows].map(row => row.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const a = document.createElement('a');
       a.href = url;
-      a.download = `mental_hand_rotation_${state.stimulusSet}_${stamp}.csv`;
+      a.download = `${state.task.key}_reaction_task_${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        if (!state.finished && state.stimulusSet) {
-          state.aborted = true;
-          finishTask();
-        }
+    document.addEventListener('keydown', async (e) => {
+      if (e.key === 'Escape' && !state.finished && state.task) {
+        state.aborted = true;
+        finishTask();
         return;
       }
 
@@ -626,28 +651,23 @@
         return;
       }
 
-      if (state.awaitingStartKey) {
-        state.awaitingStartKey = false;
+      if (state.awaitingStart && state.task) {
+        state.awaitingStart = false;
         runNextTrial();
       }
     });
 
-    $("startNormalBtn").addEventListener("click", () => startTask("normal", false));
-    $("startMonkeyBtn").addEventListener("click", () => startTask("monkey", false));
-    $("demoBtn").addEventListener("click", () => startTask("demo", true));
-    $("restartBtn").addEventListener("click", () => setScreen("setupScreen"));
-    $("downloadCsvBtn").addEventListener("click", exportCsv);
-
-    $("fullscreenBtn").addEventListener("click", async () => {
+    $('simpleSelectBtn').addEventListener('click', () => startTask('simple'));
+    $('choiceSelectBtn').addEventListener('click', () => startTask('choice'));
+    $('backToMenuBtn').addEventListener('click', () => setScreen('menuScreen'));
+    $('downloadCsvBtn').addEventListener('click', exportCsv);
+    $('fullscreenBtn').addEventListener('click', async () => {
       try {
         await document.documentElement.requestFullscreen();
-      } catch (err) {
-        console.warn(err);
+      } catch (e) {
+        console.warn(e);
       }
     });
-
-    $("trainCountLabel").textContent = `${NTRAIN} 試行`;
-    $("testCountLabel").textContent = `${CONDITIONS.length * TEST_REPEATS} 試行`;
   </script>
 </body>
 </html>
