@@ -1,168 +1,482 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>Mental Hand Rotation</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mental Hand Rotation</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --danger: #dc2626;
+      --border: #d1d5db;
+      --table-header: #4b74c0;
+      --table-cell: #c7cde0;
+    }
 
-<style>
-body {
-  font-family: sans-serif;
-  background: #f5f6fa;
-  text-align: center;
-}
+    * { box-sizing: border-box; }
 
-table {
-  border-collapse: collapse;
-  margin: 10px auto;
-}
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
 
-th {
-  background: #4b74c0;
-  color: white;
-  padding: 10px;
-}
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
 
-td {
-  background: #c7cde0;
-  padding: 10px;
-}
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    }
 
-.summary-table td:first-child,
-.summary-table th:first-child {
-  background: #4b74c0;
-  color: white;
-}
-</style>
+    h1, h2, h3 { margin-top: 0; text-align: center; }
+    .hidden { display: none !important; }
+    .center { text-align: center; }
+    .muted { color: var(--muted); }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      background: var(--accent);
+      color: white;
+    }
+
+    button.secondary { background: #e5e7eb; color: var(--text); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .select-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .select-card {
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .task-area {
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .fixation {
+      width: 28px; height: 28px; position: relative;
+    }
+    .fixation::before, .fixation::after {
+      content: ""; position: absolute; background: black;
+      left: 50%; top: 50%; transform: translate(-50%, -50%);
+    }
+    .fixation::before { width: 24px; height: 4px; }
+    .fixation::after { width: 4px; height: 24px; }
+
+    .stimulus-box {
+      width: min(92vw, 520px); height: min(78vw, 500px);
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 16px; background: #fff; border: 1px solid var(--border); overflow: hidden;
+    }
+    .stimulus-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+    .response-hint { font-size: 24px; font-weight: 700; text-align: center; }
+
+    .status-bar {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px; margin-bottom: 16px;
+    }
+    .status-item {
+      background: #f9fafb; border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center;
+    }
+
+    /* --- 結果用テーブルスタイル --- */
+    .summary-table {
+      width: 100%; border-collapse: collapse; margin: 20px auto; font-size: 14px;
+    }
+    .summary-table th {
+      background: var(--table-header); color: white; padding: 12px 8px; border: 1px solid #fff;
+    }
+    .summary-table td {
+      background: var(--table-cell); padding: 12px 8px; border: 1px solid #fff; text-align: center;
+    }
+    .summary-table td:first-child, .summary-table th:first-child {
+      background: var(--table-header); color: white; font-weight: bold;
+    }
+
+    .raw-data-area { margin-top: 30px; overflow-x: auto; }
+    .raw-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .raw-table th, .raw-table td { border: 1px solid var(--border); padding: 6px; }
+    .raw-table th { background: #f3f4f6; }
+
+    @media (max-width: 760px) {
+      .status-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .select-grid { grid-template-columns: 1fr; }
+      .summary-table { font-size: 11px; }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div id="setupScreen" class="card">
+      <h1>Mental Hand Rotation</h1>
+      <p class="center">
+        表示される手が右手か左手か判断し、<br>
+        <strong>左手なら ← キー</strong>、<strong>右手なら → キー</strong> を押してください。
+      </p>
+      <p class="center" style="color:var(--danger);">できるだけ素早く正確に。身体は動かさないでください。</p>
 
-<h2>結果</h2>
+      <div class="status-bar">
+        <div class="status-item"><strong>練習</strong><br><span id="trainCountLabel">-</span></div>
+        <div class="status-item"><strong>本試行</strong><br><span id="testCountLabel">-</span></div>
+        <div class="status-item"><strong>注視点</strong><br>1.5 秒</div>
+        <div class="status-item"><strong>操作</strong><br>Escapeで中断</div>
+      </div>
 
-<table class="summary-table">
-<thead>
-<tr>
-<th id="summarySetName">Normal</th>
-<th>右0°</th>
-<th>右90°</th>
-<th>右180°</th>
-<th>右270°</th>
-<th>左0°</th>
-<th>左90°</th>
-<th>左180°</th>
-<th>左270°</th>
-<th>右平均</th>
-<th>左平均</th>
-</tr>
-</thead>
+      <h3>刺激セットを選択</h3>
+      <div class="select-grid">
+        <div class="select-card">
+          <h3>ノーマル手</h3>
+          <button id="startNormalBtn">ノーマルで開始</button>
+        </div>
+        <div class="select-card">
+          <h3>モンキー手</h3>
+          <button id="startMonkeyBtn">モンキーで開始</button>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="fullscreenBtn" class="secondary">全画面表示</button>
+        <button id="demoBtn" class="secondary">ダミー画像で確認</button>
+      </div>
+    </div>
 
-<tbody>
-<tr>
-<td>正答率 [%]</td>
-<td id="acc-r-0">-</td>
-<td id="acc-r-90">-</td>
-<td id="acc-r-180">-</td>
-<td id="acc-r-270">-</td>
-<td id="acc-l-0">-</td>
-<td id="acc-l-90">-</td>
-<td id="acc-l-180">-</td>
-<td id="acc-l-270">-</td>
-<td id="acc-r-mean">-</td>
-<td id="acc-l-mean">-</td>
-</tr>
-</tbody>
-</table>
+    <div id="taskScreen" class="card hidden">
+      <div class="status-bar">
+        <div class="status-item"><strong>セット</strong><br><span id="setLabel">-</span></div>
+        <div class="status-item"><strong>段階</strong><br><span id="phaseLabel">-</span></div>
+        <div class="status-item"><strong>試行</strong><br><span id="trialLabel">-</span></div>
+        <div class="status-item"><strong>状態</strong><br><span id="stateLabel">-</span></div>
+      </div>
+      <div class="task-area">
+        <div id="messageArea" class="center">
+          <h2 id="mainMessage">準備ができたらキーを押してください</h2>
+          <p id="subMessage" class="muted"></p>
+        </div>
+        <div id="fixationArea" class="hidden">
+          <div class="fixation"></div>
+        </div>
+        <div id="stimulusArea" class="hidden center">
+          <div class="stimulus-box">
+            <img id="stimulusImage" alt="hand" />
+          </div>
+          <div class="response-hint">← 左手　　右手 →</div>
+        </div>
+      </div>
+    </div>
 
-<table class="summary-table">
-<thead>
-<tr>
-<th></th>
-<th>右0°</th>
-<th>右90°</th>
-<th>右180°</th>
-<th>右270°</th>
-<th>左0°</th>
-<th>左90°</th>
-<th>左180°</th>
-<th>左270°</th>
-<th>右平均</th>
-<th>左平均</th>
-</tr>
-</thead>
+    <div id="resultScreen" class="card hidden">
+      <h2>結果サマリー (<span id="summarySetName">-</span>)</h2>
+      
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>正答率 [%]</th>
+            <th>右0°</th><th>右90°</th><th>右180°</th><th>右270°</th>
+            <th>左0°</th><th>左90°</th><th>左180°</th><th>左270°</th>
+            <th>右平均</th><th>左平均</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>集計値</td>
+            <td id="acc-r-0">-</td><td id="acc-r-90">-</td><td id="acc-r-180">-</td><td id="acc-r-270">-</td>
+            <td id="acc-l-0">-</td><td id="acc-l-90">-</td><td id="acc-l-180">-</td><td id="acc-l-270">-</td>
+            <td id="acc-r-mean">-</td><td id="acc-l-mean">-</td>
+          </tr>
+        </tbody>
+      </table>
 
-<tbody>
-<tr>
-<td>反応時間 [msec]</td>
-<td id="rt-r-0">-</td>
-<td id="rt-r-90">-</td>
-<td id="rt-r-180">-</td>
-<td id="rt-r-270">-</td>
-<td id="rt-l-0">-</td>
-<td id="rt-l-90">-</td>
-<td id="rt-l-180">-</td>
-<td id="rt-l-270">-</td>
-<td id="rt-r-mean">-</td>
-<td id="rt-l-mean">-</td>
-</tr>
-</tbody>
-</table>
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>反応時間 [ms]</th>
+            <th>右0°</th><th>右90°</th><th>右180°</th><th>右270°</th>
+            <th>左0°</th><th>左90°</th><th>左180°</th><th>左270°</th>
+            <th>右平均</th><th>左平均</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>平均値</td>
+            <td id="rt-r-0">-</td><td id="rt-r-90">-</td><td id="rt-r-180">-</td><td id="rt-r-270">-</td>
+            <td id="rt-l-0">-</td><td id="rt-l-90">-</td><td id="rt-l-180">-</td><td id="rt-l-270">-</td>
+            <td id="rt-r-mean">-</td><td id="rt-l-mean">-</td>
+          </tr>
+        </tbody>
+      </table>
 
-<script>
-function mean(arr){
-  if(arr.length===0) return null;
-  return arr.reduce((a,b)=>a+b,0)/arr.length;
-}
+      <div class="controls">
+        <button id="downloadCsvBtn">CSV保存</button>
+        <button id="restartBtn" class="secondary">最初に戻る</button>
+      </div>
 
-function fill(id,val){
-  document.getElementById(id).textContent =
-    val==null? "-" : Math.round(val);
-}
+      <div class="raw-data-area">
+        <h3>全試行ログ</h3>
+        <table class="raw-table">
+          <thead>
+            <tr><th>試行</th><th>段階</th><th>条件</th><th>正誤</th><th>反応時間</th></tr>
+          </thead>
+          <tbody id="resultTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-/* ==== ここに既存の結果データ（testResults）を使う ==== */
-/* 例としてダミー */
-const testResults = [
-  {condition:"R_P_0",correct:1,rtMs:500},
-  {condition:"R_D_0",correct:0,rtMs:700},
-];
+  <script>
+    const FIX_MS = 1500;
+    const NTRAIN = 3;
+    const TEST_REPEATS = 2;
+    const CONDITIONS = [
+      "R_P_0", "R_D_0", "R_P_90", "R_D_90", "R_P_180", "R_D_180", "R_P_270", "R_D_270",
+      "L_P_0", "L_D_0", "L_P_90", "L_D_90", "L_P_180", "L_D_180", "L_P_270", "L_D_270"
+    ];
 
-/* ==== 集計 ==== */
-const map = {
-"r-0":["R_P_0","R_D_0"],
-"r-90":["R_P_90","R_D_90"],
-"r-180":["R_P_180","R_D_180"],
-"r-270":["R_P_270","R_D_270"],
-"l-0":["L_P_0","L_D_0"],
-"l-90":["L_P_90","L_D_90"],
-"l-180":["L_P_180","L_D_180"],
-"l-270":["L_P_270","L_D_270"]
-};
+    const state = {
+      demoMode: false,
+      stimulusSet: null,
+      order: [],
+      trialIndex: -1,
+      awaitingStartKey: false,
+      awaitingResponse: false,
+      stimulusOnset: null,
+      currentCondition: null,
+      allResults: []
+    };
 
-const summary = {};
+    const $ = (id) => document.getElementById(id);
 
-for(const key in map){
-  const rows = testResults.filter(r=>map[key].includes(r.condition));
-  summary[key]={
-    acc: rows.length? mean(rows.map(r=>r.correct))*100 : null,
-    rt: rows.length? mean(rows.map(r=>r.rtMs)) : null
-  };
-}
+    // --- ユーティリティ ---
+    function shuffle(array) {
+      const a = [...array];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
 
-/* ==== 表へ反映 ==== */
-const rKeys=["r-0","r-90","r-180","r-270"];
-const lKeys=["l-0","l-90","l-180","l-270"];
+    function mean(arr) {
+      const valid = arr.filter(v => v !== null && !isNaN(v));
+      return valid.length ? valid.reduce((a, b) => a + b, 0) / valid.length : null;
+    }
 
-rKeys.forEach(k=>fill("acc-"+k,summary[k].acc));
-lKeys.forEach(k=>fill("acc-"+k,summary[k].acc));
-rKeys.forEach(k=>fill("rt-"+k,summary[k].rt));
-lKeys.forEach(k=>fill("rt-"+k,summary[k].rt));
+    // --- 画面遷移 ---
+    function setScreen(id) {
+      ["setupScreen", "taskScreen", "resultScreen"].forEach(s => $(s).classList.add("hidden"));
+      $(id).classList.remove("hidden");
+    }
 
-fill("acc-r-mean", mean(rKeys.map(k=>summary[k].acc).filter(v=>v!=null)));
-fill("acc-l-mean", mean(lKeys.map(k=>summary[k].acc).filter(v=>v!=null)));
+    function showMessage(main, sub = "") {
+      $("messageArea").classList.remove("hidden");
+      $("fixationArea").classList.add("hidden");
+      $("stimulusArea").classList.add("hidden");
+      $("mainMessage").textContent = main;
+      $("subMessage").textContent = sub;
+    }
 
-fill("rt-r-mean", mean(rKeys.map(k=>summary[k].rt).filter(v=>v!=null)));
-fill("rt-l-mean", mean(lKeys.map(k=>summary[k].rt).filter(v=>v!=null)));
+    // --- タスク制御 ---
+    function startTask(set, demo) {
+      state.stimulusSet = set;
+      state.demoMode = demo;
+      state.allResults = [];
+      state.trialIndex = -1;
+      state.order = [...Array.from({length: NTRAIN}, () => CONDITIONS[Math.floor(Math.random()*CONDITIONS.length)]), ...shuffle([...CONDITIONS, ...CONDITIONS])];
+      
+      setScreen("taskScreen");
+      updateLabels("開始待ち");
+      state.awaitingStartKey = true;
+      showMessage("キーを押してスタート", `セット: ${set} / 練習のあとに本試行を行います。`);
+    }
 
-</script>
+    function updateLabels(statusText) {
+      $("setLabel").textContent = state.stimulusSet;
+      $("phaseLabel").textContent = state.trialIndex < NTRAIN ? "練習" : "本試行";
+      $("trialLabel").textContent = `${state.trialIndex + 1} / ${state.order.length}`;
+      $("stateLabel").textContent = statusText;
+    }
 
+    async function nextTrial() {
+      state.trialIndex++;
+      if (state.trialIndex >= state.order.length) {
+        showResults();
+        return;
+      }
+
+      // 練習終了時のポーズ
+      if (state.trialIndex === NTRAIN) {
+        state.awaitingStartKey = true;
+        showMessage("練習終了", "次から本試行です。キーを押してください。");
+        updateLabels("本番待機");
+        return;
+      }
+
+      updateLabels("注視点");
+      $("messageArea").classList.add("hidden");
+      $("stimulusArea").classList.add("hidden");
+      $("fixationArea").classList.remove("hidden");
+
+      await new Promise(r => setTimeout(r, FIX_MS));
+
+      state.currentCondition = state.order[state.trialIndex];
+      const img = $("stimulusImage");
+      if (state.demoMode) {
+        img.src = createDemoSvg(state.currentCondition);
+      } else {
+        img.src = `${state.stimulusSet}/${state.currentCondition}.jpg`;
+      }
+
+      $("fixationArea").classList.add("hidden");
+      $("stimulusArea").classList.remove("hidden");
+      state.stimulusOnset = performance.now();
+      state.awaitingResponse = true;
+      updateLabels("回答待ち");
+    }
+
+    function handleKey(key) {
+      if (state.awaitingStartKey) {
+        state.awaitingStartKey = false;
+        nextTrial();
+        return;
+      }
+
+      if (state.awaitingResponse) {
+        if (key !== "ArrowLeft" && key !== "ArrowRight") return;
+        const rt = performance.now() - state.stimulusOnset;
+        const isRight = state.currentCondition.startsWith("R_");
+        const correct = (key === "ArrowRight" && isRight) || (key === "ArrowLeft" && !isRight);
+
+        state.allResults.push({
+          phase: state.trialIndex < NTRAIN ? "practice" : "test",
+          condition: state.currentCondition,
+          correct: correct ? 1 : 0,
+          rtMs: rt
+        });
+
+        state.awaitingResponse = false;
+        updateLabels(correct ? "正解！" : "不正解...");
+        showMessage(correct ? "正解" : "不正解", "キーを押して次へ");
+        state.awaitingStartKey = true;
+      }
+    }
+
+    // --- 結果集計 ---
+    function showResults() {
+      setScreen("resultScreen");
+      $("summarySetName").textContent = state.stimulusSet;
+
+      const testOnly = state.allResults.filter(r => r.phase === "test");
+      
+      const map = {
+        "r-0":["R_P_0","R_D_0"], "r-90":["R_P_90","R_D_90"], "r-180":["R_P_180","R_D_180"], "r-270":["R_P_270","R_D_270"],
+        "l-0":["L_P_0","L_D_0"], "l-90":["L_P_90","L_D_90"], "l-180":["L_P_180","L_D_180"], "l-270":["L_P_270","L_D_270"]
+      };
+
+      const summary = {};
+      for(let key in map) {
+        const matches = testOnly.filter(r => map[key].includes(r.condition));
+        summary[key] = {
+          acc: matches.length ? mean(matches.map(m => m.correct)) * 100 : null,
+          rt: matches.length ? mean(matches.map(m => m.rtMs)) : null
+        };
+      }
+
+      const fill = (id, val) => $(id).textContent = (val === null) ? "-" : Math.round(val);
+      const rKeys = ["r-0", "r-90", "r-180", "r-270"];
+      const lKeys = ["l-0", "l-90", "l-180", "l-270"];
+
+      [...rKeys, ...lKeys].forEach(k => {
+        fill("acc-" + k, summary[k].acc);
+        fill("rt-" + k, summary[k].rt);
+      });
+
+      fill("acc-r-mean", mean(rKeys.map(k => summary[k].acc)));
+      fill("acc-l-mean", mean(lKeys.map(k => summary[k].acc)));
+      fill("rt-r-mean", mean(rKeys.map(k => summary[k].rt)));
+      fill("rt-l-mean", mean(lKeys.map(k => summary[k].rt)));
+
+      // ログテーブル作成
+      const tbody = $("resultTbody");
+      tbody.innerHTML = "";
+      state.allResults.forEach((r, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${i+1}</td><td>${r.phase}</td><td>${r.condition}</td><td>${r.correct}</td><td>${Math.round(r.rtMs)}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function createDemoSvg(cond) {
+      const parts = cond.split("_");
+      const side = parts[0] === "R" ? "右" : "左";
+      const surf = parts[1] === "P" ? "掌" : "背";
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="100%" height="100%" fill="white"/><text x="50%" y="50%" font-size="50" text-anchor="middle" dominant-baseline="central">${side}${surf}${parts[2]}°</text></svg>`;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    function exportCsv() {
+      const headers = "Trial,Phase,Condition,Correct,RTms\n";
+      const rows = state.allResults.map((r, i) => `${i+1},${r.phase},${r.condition},${r.correct},${Math.round(r.rtMs)}`).join("\n");
+      const blob = new Blob([headers + rows], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `result_${state.stimulusSet}_${new Date().getTime()}.csv`;
+      a.click();
+    }
+
+    // --- イベントリスナー ---
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { setScreen("setupScreen"); return; }
+      handleKey(e.key);
+    });
+
+    $("startNormalBtn").onclick = () => startTask("normal", false);
+    $("startMonkeyBtn").onclick = () => startTask("monkey", false);
+    $("demoBtn").onclick = () => startTask("demo", true);
+    $("restartBtn").onclick = () => setScreen("setupScreen");
+    $("downloadCsvBtn").onclick = exportCsv;
+    $("fullscreenBtn").onclick = () => document.documentElement.requestFullscreen().catch(()=>{});
+
+    // 初期表示設定
+    $("trainCountLabel").textContent = `${NTRAIN} 試行`;
+    $("testCountLabel").textContent = `${CONDITIONS.length * TEST_REPEATS} 試行`;
+  </script>
 </body>
 </html>
